@@ -1,8 +1,9 @@
-from packages import utils
+from packages.tools import utils
 from packages.talk import human
+from packages.talk import animal
 
-r = utils.say_twice('やあ')
-print(r)
+print(utils.say_twice('やあ'))
 
-r2 = human.cry()
-print(r2)
+print(human.cry())
+
+print(animal.cry())
