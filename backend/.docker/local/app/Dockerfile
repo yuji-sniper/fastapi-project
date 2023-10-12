@@ -12,6 +12,7 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 
 COPY ./backend/pyproject.toml ./backend/poetry.lock /app/
 
+# プロジェクトのディレクトリ内に仮想環境(.venv)を配置させる
 RUN poetry config virtualenvs.in-project true
 
 RUN poetry install
