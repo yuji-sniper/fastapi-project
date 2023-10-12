@@ -8,6 +8,9 @@ class Person:
     def __init__(self, name: str) -> None:
         self.name = name
     
+    def __del__(self) -> None:
+        print('Dead')
+    
     def do_something(self) -> None:
         self.say()
         self.run(5)
@@ -26,3 +29,5 @@ class Person:
 
 person = Person('Mike')
 person.do_something()
+del person
+print('############')
