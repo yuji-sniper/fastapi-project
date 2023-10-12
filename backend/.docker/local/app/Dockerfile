@@ -9,7 +9,10 @@ WORKDIR /app
 
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
-COPY ./backend/pyproject.toml /app/
-COPY ./backend/poetry.lock /app/
+COPY ./backend/pyproject.toml ./backend/poetry.lock /app/
 
-RUN poetry install --no-root
+RUN poetry config virtualenvs.in-project true
+
+RUN poetry install
+
+ENV PYTHONPATH="/app/.venv/lib/python3.11/site-packages:$PYTHONPATH"
