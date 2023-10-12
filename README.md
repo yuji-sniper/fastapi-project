@@ -7,7 +7,7 @@ $ make init
 DockerコンテナとVSCodeの統合を行います。<br>
 これによってDockerコンテナ内のファイルに対してVSCodeからアクセスできます。
 
-- `Cmd/Ctrl + Shift + P`でコマンドパレットを開き、`Remote-Containers: Open Folder in Container`を選択。
+- `Cmd/Ctrl + Shift + P`でコマンドパレットを開き、`Dev-Containers: Open Folder in Container`を選択。
 - プロジェクトフォルダ`fastapi-project`を選択（compose.ymlファイルがあるフォルダ）。
 
 ## Dev Containers終了・再開
