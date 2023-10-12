@@ -5,6 +5,9 @@ up:
 build:
 	docker-compose up -d --build
 
+build-only:
+	docker-compose build
+
 down:
 	docker-compose down
 
@@ -22,6 +25,5 @@ poetry-install:
 
 # 初回環境構築
 init:
-	@make build
+	@make build-only
 	@make poetry-install
-	@make up
