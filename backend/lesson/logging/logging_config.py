@@ -30,4 +30,8 @@ logging.config.dictConfig({
 logger = logging.getLogger('simpleExample')
 
 logger.warning('warning')
-logger.error('error')
+logger.error({
+    'action': 'create',
+    'status': 'fail',
+    'message': 'Api call is failed.'
+})
