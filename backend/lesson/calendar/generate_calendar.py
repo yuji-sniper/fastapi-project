@@ -13,7 +13,7 @@ def generate(year: int, month: int) -> str:
         return path
     
     # 画像のサイズ
-    width, height = 512, 288
+    width, height = 512, 300
 
     # カレンダーの日付データを取得
     cal = calendar.monthcalendar(year, month)
