@@ -26,5 +26,4 @@ def generate(image_path: str, calendar_path: str):
     data = str(time.time()).encode('utf-8')
     hashed_name = hashlib.md5(data).hexdigest()
     combined_img.save(f"image_calendars/{hashed_name}.png")
-    
     print('combined successfly.')

@@ -46,7 +46,6 @@ def generate(year: int, month: int) -> str:
 
     # 画像を保存
     img.save(path)
-    
     print('Carendar saved successfly.')
     
     return path

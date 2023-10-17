@@ -33,7 +33,6 @@ def generate(prompt: str) -> str:
     # 画像をファイルとして保存
     with open(path, "wb") as file:
         file.write(content)
-
     print('Image saved successfly.')
 
     return path
