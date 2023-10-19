@@ -4,8 +4,8 @@ import generate_image
 
 
 if __name__ == '__main__':
-    year = int(input("Year: "))
-    month = int(input("Month: "))
+    year: int = int(input("Year: "))
+    month: int = int(input("Month: "))
     prompt = input("Image prompt: ")
     
     image_path = generate_image.generate(prompt)
