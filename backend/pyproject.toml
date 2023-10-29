@@ -17,6 +17,14 @@ python-dotenv = "^1.0.0"
 pillow = "^10.1.0"
 bs4 = "^0.0.1"
 lxml = "^4.9.3"
+fastapi-csrf-protect = "^0.3.2"
+mysqlclient = "^2.2.0"
+sqlalchemy = "^2.0.22"
+pyjwt = "^2.8.0"
+passlib = "^1.7.4"
+python-decouple = "^3.8"
+dnspython = "^2.4.2"
+alembic = "^1.12.1"
 
 
 [build-system]

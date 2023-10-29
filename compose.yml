@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    container_name: app
+    container_name: fastapi-app
     build:
       context: .
       dockerfile: ./backend/.docker/local/app/Dockerfile
@@ -12,6 +12,19 @@ services:
       - 8000:8000
     working_dir: /app
     command: poetry run uvicorn app.main:app --host 0.0.0.0 --reload
-    # depends_on:
-    #   mysql:
-    #     condition: service_healthy
+    depends_on:
+      mysql:
+        condition: service_healthy
+  mysql:
+    container_name: fastapi-mysql
+    image: mysql:8.0.35
+    environment:
+      MYSQL_DATABASE: fastapi
+      MYSQL_USER: fastapi
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - 3306:3306
+    volumes:
+      - ./backend/.docker/local/mysql/data:/var/lib/mysql
+      - ./backend/.docker/local/mysql/my.cnf:/etc/mysql/conf.d/my.cnf

@@ -37,7 +37,8 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"donjayamanne.python-extension-pack"
+				"donjayamanne.python-extension-pack",
+				"ms-azuretools.vscode-docker"
 			]
 		}
 	}
