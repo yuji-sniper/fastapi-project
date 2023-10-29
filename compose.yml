@@ -2,8 +2,8 @@ services:
   app:
     container_name: app
     build:
-      dockerfile: ./backend/.docker/local/app/Dockerfile
       context: .
+      dockerfile: ./backend/.docker/local/app/Dockerfile
     volumes:
       - ./backend:/app
     ports:
