@@ -13,8 +13,7 @@ services:
     working_dir: /app
     command: poetry run uvicorn app.main:app --host 0.0.0.0 --reload
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
   mysql:
     container_name: fastapi-mysql
     image: mysql:8.0.35
