@@ -31,5 +31,5 @@ SessionLocal = scoped_session(
 
 Base = declarative_base()
 
-def get_url() -> str:
-    return str(db_url)
+def get_db():
+    return SessionLocal()
