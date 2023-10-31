@@ -1,13 +1,13 @@
+from decouple import config
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-# TODO: 環境変数にしたい
-db_user = "fastapi"
-db_password = "password"
-db_host = "mysql"
-db_port = 3306
-db_name = "fastapi"
+db_user = config('DB_USER')
+db_password = config('DB_PASSWORD')
+db_host = config('DB_HOST')
+db_port = config('DB_PORT')
+db_name = config('DB_NAME')
 
 db_url = URL.create(
     drivername="mysql+pymysql",
