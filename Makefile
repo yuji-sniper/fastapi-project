@@ -16,6 +16,15 @@ prune:
 app:
 	docker-compose exec app /bin/bash
 
+mysql:
+	docker-compose exec mysql /bin/bash
+
+migrate:
+	docker-compose run --rm app poetry run alembic upgrade head
+
+migrate-rollback:
+	docker-compose run --rm app poetry run alembic downgrade -1
+
 poetry-install:
 	docker-compose run --rm app poetry install
 

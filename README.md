@@ -17,3 +17,17 @@ $ make down
 ```
 ### 再開
 VSCode左下の`開発コンテナー`をクリックし、`ウィンドウの再読み込み`を選択。
+
+## マイグレーション
+### マイグレーションファイル生成
+```
+$ make app
+$ poetry run alembic revision --autogenerate -m "create hoge table"
+```
+
+app/database/migrations/versionsにマイグレーションファイルが生成される。
+
+### マイグレーション実行
+```
+$ make migrate
+```

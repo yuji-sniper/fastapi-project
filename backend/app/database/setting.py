@@ -1,8 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
+# TODO: 環境変数にしたい
 db_user = "fastapi"
 db_password = "password"
 db_host = "mysql"
@@ -27,8 +27,6 @@ SessionLocal = scoped_session(
         autoflush=True
     )
 )
-
-Base = declarative_base()
 
 def get_url() -> str:
     return str(db_url)
