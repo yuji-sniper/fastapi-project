@@ -29,6 +29,11 @@ poetry-install:
 	docker-compose run --rm app poetry install
 
 
+# ログ
+app-log:
+	docker-compose logs -f app
+
+
 # 初回環境構築
 init:
 	@make build

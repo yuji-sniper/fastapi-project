@@ -13,15 +13,19 @@ db_url = URL.create(
     database=config('DB_NAME')
 )
 
-Engine = create_engine(str(db_url))
+Engine = create_engine(db_url)
 
 SessionLocal = scoped_session(
     sessionmaker(
-        bind=Engine,
         autocommit=False,
-        autoflush=True
+        autoflush=False,
+        bind=Engine
     )
 )
 
 def get_db():
-    return SessionLocal()
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
