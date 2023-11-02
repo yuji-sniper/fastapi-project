@@ -9,7 +9,6 @@ from app.models.todo import Todo
 from app.schemas.todo import TodoCreate, TodoOut
 
 
-
 router = APIRouter()
 
 logger = logging.getLogger(__name__)
