@@ -39,7 +39,8 @@
 			"extensions": [
 				"donjayamanne.python-extension-pack",
 				"ms-azuretools.vscode-docker",
-				"aaron-bond.better-comments"
+				"aaron-bond.better-comments",
+				"GitHub.copilot"
 			]
 		}
 	}
