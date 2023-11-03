@@ -5,6 +5,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.schemas.token import TokenOutput
 from app.schemas.user import UserInput, UserOutput
 from app.services.auth.auth_service import AuthService
 
@@ -33,7 +34,7 @@ def register(user_input: UserInput, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Internal Server Error")
 
 
-@router.post("/login")
+@router.post("/login", response_model=TokenOutput)
 def login(user_input: UserInput, db: Session = Depends(get_db)):
     '''
     Login a user.
@@ -42,7 +43,9 @@ def login(user_input: UserInput, db: Session = Depends(get_db)):
     
     user = auth_service.authenticate_user(db, user_input)
     
-    return auth_service.create_access_token(user)
+    token = auth_service.create_access_token(user)
+    
+    return TokenOutput(token_type="access_token", token=token)
 
 
 @router.get("/me", response_model=UserOutput)

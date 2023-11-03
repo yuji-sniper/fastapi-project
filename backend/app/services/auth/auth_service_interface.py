@@ -35,7 +35,7 @@ class AuthServiceInterface(ABC):
     
     
     @abstractmethod
-    def create_access_token(self, user: User):
+    def create_access_token(self, user: User) -> str:
         '''
         Create an access token.
         '''

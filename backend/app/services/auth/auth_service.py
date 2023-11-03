@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.models.user import User
 from app.repositories.user.user_repository import UserRepository
+from app.schemas.token import AccessTokenData
 from app.schemas.user import UserInput
 from app.services.auth.auth_service_interface import AuthServiceInterface
 
@@ -78,7 +79,7 @@ class AuthService(AuthServiceInterface):
         return user
     
     
-    def create_access_token(self, user: User):
+    def create_access_token(self, user: User) -> str:
         '''
         Create an access token.
         '''
@@ -88,9 +89,7 @@ class AuthService(AuthServiceInterface):
         
         claims.update({"exp": expire})
         
-        token = jwt.encode(claims, self.SECRET_KEY, algorithm=self.ALGORITHM)
-        
-        return token
+        return jwt.encode(claims, self.SECRET_KEY, algorithm=self.ALGORITHM)
     
     
     def decode_access_token(self, token: str = Depends(oauth2_scheme)):
@@ -117,10 +116,11 @@ class AuthService(AuthServiceInterface):
             username: str = payload.get("sub")
             if username is None:
                 raise credentials_exception
+            token_data = AccessTokenData(username=username)
         except  JWTError:
             raise credentials_exception
         
-        user = user_repository.find_by_username(username)
+        user = user_repository.find_by_username(token_data.username)
         
         if user is None:
             raise credentials_exception
