@@ -1,7 +1,7 @@
 from pydantic import BaseModel, constr
 
 
-class TodoCreate(BaseModel):
+class TodoInput(BaseModel):
     title: constr(max_length=64)
     description: constr(max_length=255)
     
