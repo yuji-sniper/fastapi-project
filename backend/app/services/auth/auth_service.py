@@ -10,12 +10,13 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.repositories.user.user_repository import UserRepository
 from app.schemas.user import UserInput
+from app.services.auth.auth_service_interface import AuthServiceInterface
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
-class AuthService():
+class AuthService(AuthServiceInterface):
     
     SECRET_KEY = config("SECRET_KEY")
     ALGORITHM = "HS256"
