@@ -1,8 +1,9 @@
 from datetime import datetime
-from app.db.base_class import Base
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.sql.sqltypes import DateTime
+
+from app.db.base_class import Base
 
 
 class Todo(Base):

@@ -9,7 +9,7 @@ class TodoInput(BaseModel):
         orm_mode = True
 
 
-class TodoOut(BaseModel):
+class TodoOutput(BaseModel):
     id: int
     title: str
     description: str

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.repositories.todo.todo_repository import TodoRepository
-from app.schemas.todo import TodoInput, TodoOut
+from app.schemas.todo import TodoInput, TodoOutput
 
 
 router = APIRouter()
@@ -14,7 +14,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.get("/", response_model=List[TodoOut])
+@router.get("/", response_model=List[TodoOutput])
 def get(db: Session = Depends(get_db)):
     '''
     Get all todos.
@@ -25,7 +25,7 @@ def get(db: Session = Depends(get_db)):
     return todos
 
 
-@router.post("/", response_model=TodoOut, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=TodoOutput)
 def create(todo_input: TodoInput, db: Session = Depends(get_db)):
     '''
     Create a todo.
@@ -40,7 +40,7 @@ def create(todo_input: TodoInput, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Internal Server Error")
 
 
-@router.put("/{id}", response_model=TodoOut)
+@router.put("/{id}", response_model=TodoOutput)
 def update(id: int, todo_input: TodoInput, db: Session = Depends(get_db)):
     '''
     Update a todo by id.
