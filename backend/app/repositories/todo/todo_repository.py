@@ -4,10 +4,11 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.models.todo import Todo
+from app.repositories.todo.todo_repository_interface import TodoRepositoryInterface
 from app.schemas.todo import TodoInput
 
 
-class TodoRepository:
+class TodoRepository(TodoRepositoryInterface):
     
     db: Session
     
@@ -17,16 +18,10 @@ class TodoRepository:
     
     
     def get_all(self) -> List[Todo]:
-        '''
-        Get all todos.
-        '''
         return self.db.query(Todo).all()
 
 
     def create(self, todo_input: TodoInput) -> Todo:
-        '''
-        Create a todo.
-        '''
         todo = Todo(
             title=todo_input.title,
             description=todo_input.description
@@ -38,9 +33,6 @@ class TodoRepository:
     
     
     def update(self, id: int, todo_input: TodoInput) -> Todo:
-        '''
-        Update a todo by id.
-        '''
         todo = self.db.query(Todo).get(id)
         if not todo:
             raise HTTPException(status_code=404, detail="Todo not found")
@@ -52,9 +44,6 @@ class TodoRepository:
     
 
     def delete(self, id: int) -> None:
-        '''
-        Delete a todo by id.
-        '''
         todo = self.db.query(Todo).get(id)
         if not todo:
             raise HTTPException(status_code=404, detail="Todo not found")

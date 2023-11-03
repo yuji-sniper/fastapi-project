@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.repositories.todo_repository import TodoRepository
+from app.repositories.todo.todo_repository import TodoRepository
 from app.schemas.todo import TodoInput, TodoOut
 
 
