@@ -61,7 +61,7 @@ class AuthService(AuthServiceInterface):
         return user_repository.create(user_input)
     
     
-    def authenticate_user(self, user_input: UserInput, db: Session):
+    def authenticate_user(self, db: Session, user_input: UserInput):
         '''
         Authenticate a user.
         '''

@@ -40,7 +40,7 @@ def login(user_input: UserInput, db: Session = Depends(get_db)):
     '''
     auth_service = AuthService()
     
-    user = auth_service.authenticate_user(user_input, db)
+    user = auth_service.authenticate_user(db, user_input)
     
     return auth_service.create_access_token(user)
 
