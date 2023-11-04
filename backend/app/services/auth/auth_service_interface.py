@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from fastapi import Request
+
 from app.models.user import User
 
 
@@ -43,16 +45,16 @@ class AuthServiceInterface(ABC):
     
     
     @abstractmethod
-    def decode_access_token(self, token: str):
+    def decode_access_token(self, request: Request) -> str:
         '''
-        Decode an access token.
+        Get an access token.
         '''
         pass
     
     
     @abstractmethod
-    def get_current_user(self, token: str, db) -> User:
+    def verify_access_token(self, db, request: Request) -> User:
         '''
-        Get the current user.
+        Verify an access token.
         '''
         pass

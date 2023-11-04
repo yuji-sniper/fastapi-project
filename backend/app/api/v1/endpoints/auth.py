@@ -1,11 +1,15 @@
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.security import OAuth2PasswordBearer
+from fastapi_csrf_protect import CsrfProtect
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.schemas.common import Msg
+from app.dependencies.auth.auth_dependencies import get_auth_user
+from app.models.user import User
+from app.schemas.common import Ok
+from app.schemas.csrf import Csrf
 from app.schemas.user import UserInput, UserOutput
 from app.services.auth.auth_service import AuthService
 
@@ -15,6 +19,18 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+
+@router.get("/csrf", response_model=Csrf)
+def get_csrf_token(response: Response, csrf_protect: CsrfProtect = Depends()):
+    '''
+    Get a CSRF token.
+    '''
+    csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
+    
+    csrf_protect.set_csrf_cookie(signed_token, response)
+    
+    return Csrf(csrf_token=csrf_token)
 
 
 @router.post("/register")
@@ -34,7 +50,7 @@ def register(user_input: UserInput, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Internal Server Error")
 
 
-@router.post("/login", response_model=Msg)
+@router.post("/login", response_model=Ok)
 def login(response: Response, user_input: UserInput, db: Session = Depends(get_db)):
     '''
     Login a user.
@@ -46,23 +62,24 @@ def login(response: Response, user_input: UserInput, db: Session = Depends(get_d
     token = auth_service.create_access_token(user)
     
     response.set_cookie(
-        key="access_token", value=f'Bearer {token}', httponly=True, samesite="none", secure=True)
+        key="access_token", value=f'Bearer {token}', httponly=True, samesite="lax", secure=False)
     
-    return Msg(message="Successfully logged in")
+    return Ok(message="Successfully logged in")
+
+
+@router.post("/logout", response_model=Ok)
+def logout(response: Response):
+    '''
+    Logout a user.
+    '''
+    response.delete_cookie(key="access_token")
+    
+    return Ok(message="Successfully logged out")
 
 
 @router.get("/me", response_model=UserOutput)
-def me(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def me(current_user: User = Depends(get_auth_user)):
     '''
     Get the current user.
     '''
-    auth_service = AuthService()
-
-    try:
-        user = auth_service.get_current_user(db, token)
-        return user
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        logger.error(f"Error getting current user: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Internal Server Error")
+    return current_user

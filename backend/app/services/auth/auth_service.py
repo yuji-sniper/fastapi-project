@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
 
 from decouple import config
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
+from fastapi_csrf_protect import CsrfProtect
+from jose import jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
@@ -21,7 +22,7 @@ class AuthService(AuthServiceInterface):
     
     SECRET_KEY = config("SECRET_KEY")
     ALGORITHM = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES = 5
+    ACCESS_TOKEN_EXPIRE_MINUTES = 15
     
     
     pwd_context: CryptContext
@@ -57,6 +58,7 @@ class AuthService(AuthServiceInterface):
             return False
         
         hashed_password = self.get_password_hash(user_input.password)
+        
         user_input.password = hashed_password
         
         return user_repository.create(user_input)
@@ -92,33 +94,57 @@ class AuthService(AuthServiceInterface):
         return jwt.encode(claims, self.SECRET_KEY, algorithm=self.ALGORITHM)
     
     
-    def decode_access_token(self, token: str = Depends(oauth2_scheme)):
+    def decode_access_token(self, request: Request):
         '''
         Decode an access token.
         '''
-        return jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
+        value = request.cookies.get("access_token")
+        
+        if not value:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Access token is missing",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+        
+        _, _, token = value.partition(" ")
+        
+        try:
+            return jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Access token has expired",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+        except jwt.InvalidTokenError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
     
     
-    def get_current_user(self, db: Session, token: str = Depends(oauth2_scheme)):
+    def verify_access_token(self, db: Session, request: Request) -> User:
         '''
-        Get the current user.
+        Verify an access token.
         '''
         credentials_exception = HTTPException(
-            status_code=401,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"}
         )
+
+        payload = self.decode_access_token(request)
         
-        user_repository = UserRepository(db)
+        username: str = payload.get("sub")
         
-        try:
-            payload = self.decode_access_token(token)
-            username: str = payload.get("sub")
-            if username is None:
-                raise credentials_exception
-            token_data = AccessTokenData(username=username)
-        except  JWTError:
+        if username is None:
             raise credentials_exception
+        
+        token_data = AccessTokenData(username=username)
+         
+        user_repository = UserRepository(db)
         
         user = user_repository.find_by_username(token_data.username)
         
@@ -126,3 +152,23 @@ class AuthService(AuthServiceInterface):
             raise credentials_exception
         
         return user
+    
+    
+    def verify_and_update_access_token(self, db: Session, request: Request):
+        '''
+        Verify and update an access token.
+        '''
+        user = self.verify_access_token(db, request)
+        
+        return self.create_access_token(user)
+    
+    
+    def create_csrf_token(self, response: Response, csrf_protect: CsrfProtect):
+        '''
+        Create a CSRF token.
+        '''
+        csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
+        
+        csrf_protect.set_csrf_cookie(response, signed_token)
+        
+        return csrf_token
