@@ -78,8 +78,8 @@ def logout(response: Response):
 
 
 @router.get("/me", response_model=UserOutput)
-def me(current_user: User = Depends(get_auth_user)):
+def me(auth_user: User = Depends(get_auth_user)):
     '''
     Get the current user.
     '''
-    return current_user
+    return auth_user

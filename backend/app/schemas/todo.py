@@ -16,3 +16,22 @@ class TodoOutput(BaseModel):
     
     class Config:
         orm_mode = True
+
+
+class TodoCreate(BaseModel):
+    user_id: int
+    title: str
+    description: str
+    
+    class Config:
+        orm_mode = True
+
+
+class TodoUpdate(BaseModel):
+    id: int
+    user_id: int
+    title: str
+    description: str
+    
+    class Config:
+        orm_mode = True
