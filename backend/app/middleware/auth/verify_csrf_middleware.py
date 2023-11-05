@@ -1,36 +1,22 @@
-from fastapi import Request
-from fastapi.responses import JSONResponse
+from fastapi import Request, Response
 from fastapi_csrf_protect import CsrfProtect
-from fastapi_csrf_protect.exceptions import CsrfProtectError
-from pathlib import Path
-from starlette.middleware.base import BaseHTTPMiddleware
+
+from app.middleware.base_middleware import BaseMiddleware
 
 
 csrf_protect = CsrfProtect()
 
 
-class VerifyCsrfMiddleware(BaseHTTPMiddleware):
+class VerifyCsrfMiddleware(BaseMiddleware):
     '''
     Verify a CSRF token.
     '''
-    async def dispatch(self, request: Request, call_next):
+    
+    async def execute(self, request: Request, response: Response):
         if request.method not in ["POST", "PUT", "PATCH", "DELETE"]:
-            return await call_next(request)
+            return response
         
-        try:
-            await csrf_protect.validate_csrf(request)
-        except CsrfProtectError as e:
-            return JSONResponse(
-                status_code=e.status_code,
-                content={"detail": e.message}
-            )
-        except Exception as e:
-            return JSONResponse(
-                status_code=500,
-                content={"detail": "Internal Server Error"}
-            )
-        
-        response = await call_next(request)
+        await csrf_protect.validate_csrf(request)
         
         csrf_protect.unset_csrf_cookie(response)
     

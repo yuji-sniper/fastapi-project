@@ -17,19 +17,11 @@ def get_auth_user(
     '''
     Get the current user.
     '''
-    try:
-        user = auth_service.verify_access_token(db, request)
-        
-        new_access_token = auth_service.create_access_token(user)
-        
-        response.set_cookie(
-            key="access_token", value=f'Bearer {new_access_token}', httponly=True, samesite="lax", secure=False)
-        
-        return user
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-        )
+    user = auth_service.get_auth_user(db, request)
+    
+    new_access_token = auth_service.create_access_token(user)
+    
+    response.set_cookie(
+        key="access_token", value=f'Bearer {new_access_token}', httponly=True, samesite="lax", secure=False)
+    
+    return user

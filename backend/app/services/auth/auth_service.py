@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from decouple import config
-from fastapi import Depends, HTTPException, Request, Response, status
+from fastapi import HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from fastapi_csrf_protect import CsrfProtect
 from jose import jwt
@@ -22,7 +22,7 @@ class AuthService(AuthServiceInterface):
     
     SECRET_KEY = config("SECRET_KEY")
     ALGORITHM = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES = 15
+    ACCESS_TOKEN_EXPIRE_MINUTES = 10
     
     
     pwd_context: CryptContext
@@ -125,7 +125,7 @@ class AuthService(AuthServiceInterface):
             )
     
     
-    def verify_access_token(self, db: Session, request: Request) -> User:
+    def get_auth_user(self, db: Session, request: Request) -> User:
         '''
         Verify an access token.
         '''
@@ -152,23 +152,3 @@ class AuthService(AuthServiceInterface):
             raise credentials_exception
         
         return user
-    
-    
-    def verify_and_update_access_token(self, db: Session, request: Request):
-        '''
-        Verify and update an access token.
-        '''
-        user = self.verify_access_token(db, request)
-        
-        return self.create_access_token(user)
-    
-    
-    def create_csrf_token(self, response: Response, csrf_protect: CsrfProtect):
-        '''
-        Create a CSRF token.
-        '''
-        csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
-        
-        csrf_protect.set_csrf_cookie(response, signed_token)
-        
-        return csrf_token

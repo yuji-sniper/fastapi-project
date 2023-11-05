@@ -53,7 +53,7 @@ class AuthServiceInterface(ABC):
     
     
     @abstractmethod
-    def verify_access_token(self, db, request: Request) -> User:
+    def get_auth_user(self, db, request: Request) -> User:
         '''
         Verify an access token.
         '''
