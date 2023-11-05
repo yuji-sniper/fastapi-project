@@ -39,7 +39,10 @@ fastapi_project/
 │
 ├── app/
 │   ├── main.py                          # FastAPI アプリケーションインスタンスとルートルーターの設定
-│   ├── dependencies.py                  # 依存関係の定義
+│   │
+│   ├── middleware/                      # ミドルウェア
+│   │
+│   ├── dependencies/                    # 依存関係の定義
 │   │
 │   ├── db/                              # データベース接続とセッションの設定
 │   │
