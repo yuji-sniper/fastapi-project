@@ -38,36 +38,31 @@ $ make migrate
 fastapi_project/
 │
 ├── app/
-│   ├── __init__.py
-│   ├── main.py                # FastAPI アプリケーションインスタンスとルートルーターの設定
-│   ├── dependencies/        # 依存関係の定義
+│   ├── main.py                          # FastAPI アプリケーションインスタンスとルートルーターの設定
+│   ├── dependencies.py                  # 依存関係の定義
 │   │
-│   ├── models/                # データモデル (ORM モデル)
+│   ├── db/                              # データベース接続とセッションの設定
 │   │
-│   ├── schemas/               # リクエストとレスポンスモデル (Pydantic モデル)
+│   ├── models/                          # データモデル (ORM モデル)
 │   │
-│   ├── db/                    # データベース接続とセッションの設定
+│   ├── schemas/                         # リクエストとレスポンスモデル (Pydantic モデル)
 │   │
-│   ├── repository/            # リポジトリ層 - データソースとのやり取りを担当
+│   ├── repository/                      # リポジトリ層 - データソースとのやり取りを担当
 │   │
-│   ├── services/              # サービス層 - ビジネスロジックの実装
+│   ├── services/                        # サービス層 - ビジネスロジックの実装
 │   │
-│   ├── usecases/              # ユースケース層 - アプリケーションのユースケースを管理
+│   ├── usecases/                        # ユースケース層 - アプリケーションのユースケースを管理
 │   │
-│   └── api/
-│       ├── __init__.py
-│       ├── v1/                # バージョン1のAPIエンドポイント
-│       │   ├── __init__.py
+│   └── api/                             # APIエンドポイントの定義
+│       ├── v1/                          # バージョン1のAPIエンドポイント
 │       │   ├── router.py
-│       │   └── endpoints/
+│       │   └── endpoints/              # v1エンドポイントの具体的な定義
 │       │
-│       └── v2/                # バージョン2のAPIエンドポイント
-│           ├── __init__.py
+│       └── v2/                          # バージョン2のAPIエンドポイント
 │           ├── router.py
-│           └── endpoints/
+│           └── endpoints/              # v2エンドポイントの具体的な定義
 │
-├── migrations/                  # Alembic マイグレーションディレクトリ
+├── migrations/                          # Alembic マイグレーションディレクトリ
 │
-└── tests/                     # テスト
-
+└── tests/                               # テストディレクトリ
 ```
