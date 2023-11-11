@@ -27,3 +27,8 @@ services:
     volumes:
       - ./backend/.docker/local/mysql/data:/var/lib/mysql
       - ./backend/.docker/local/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+  redis:
+    container_name: fastapi-redis
+    image: redis:latest
+    ports:
+      - 6379:6379

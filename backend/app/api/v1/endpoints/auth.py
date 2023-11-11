@@ -1,10 +1,11 @@
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
-from fastapi.security import OAuth2PasswordBearer
 from fastapi_csrf_protect import CsrfProtect
 from sqlalchemy.orm import Session
+from redis import Redis
 
+from app.config.redis_config import get_redis
 from app.db.session import get_db
 from app.dependencies.auth.auth_dependencies import get_auth_user
 from app.models.user import User
@@ -12,13 +13,12 @@ from app.schemas.common import Ok
 from app.schemas.csrf import Csrf
 from app.schemas.user import UserInput, UserOutput
 from app.services.auth.auth_service import AuthService
+from app.utils.auth_util import get_request_token
 
 
 router = APIRouter()
 
 logger = logging.getLogger(__name__)
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
 @router.get("/csrf", response_model=Csrf)
@@ -50,8 +50,11 @@ def register(user_input: UserInput, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Internal Server Error")
 
 
-@router.post("/login", response_model=Ok)
-def login(response: Response, user_input: UserInput, db: Session = Depends(get_db)):
+@router.post("/login")
+def login(request: Request,
+          user_input: UserInput,
+          db: Session = Depends(get_db),
+          session: Redis = Depends(get_redis)):
     '''
     Login a user.
     '''
@@ -59,20 +62,32 @@ def login(response: Response, user_input: UserInput, db: Session = Depends(get_d
     
     user = auth_service.authenticate_user(db, user_input)
     
-    token = auth_service.create_access_token(user)
+    old_api_token = get_request_token(request)
     
-    response.set_cookie(
-        key="access_token", value=f'Bearer {token}', httponly=True, samesite="lax", secure=False)
+    if old_api_token:
+        auth_service.delete_auth_username_from_session(old_api_token, session)
     
-    return Ok(message="Successfully logged in")
+    new_api_token = auth_service.generate_api_token(session)
+    
+    auth_service.store_auth_username_in_session(user.username, new_api_token, session)
+    
+    return {"token": new_api_token}
 
 
 @router.post("/logout", response_model=Ok)
-def logout(response: Response):
+def logout(request: Request,
+           session: Redis = Depends(get_redis)):
     '''
     Logout a user.
     '''
-    response.delete_cookie(key="access_token")
+    token = get_request_token(request)
+    
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    auth_service = AuthService()
+    
+    auth_service.delete_auth_username_from_session(token, session)
     
     return Ok(message="Successfully logged out")
 

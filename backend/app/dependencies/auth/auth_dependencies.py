@@ -1,27 +1,42 @@
-from fastapi import Request, Response, HTTPException, Depends, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Request, Depends, HTTPException
 from sqlalchemy.orm import Session
+from redis import Redis
 
+from app.config.redis_config import get_redis
 from app.db.session import get_db
 from app.models.user import User
+from app.repositories.user.user_repository import UserRepository
 from app.services.auth.auth_service import AuthService
-
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
-auth_service = AuthService()
+from app.utils.auth_util import get_request_token
 
 
 def get_auth_user(
-    request: Request, response: Response, db: Session = Depends(get_db)) -> User:
+    request: Request,
+    db: Session = Depends(get_db),
+    session: Redis = Depends(get_redis)) -> User:
     '''
     Get the current user.
     '''
-    user = auth_service.get_auth_user(db, request)
+    token = get_request_token(request)
     
-    new_access_token = auth_service.create_access_token(user)
+    auth_service = AuthService()
     
-    response.set_cookie(
-        key="access_token", value=f'Bearer {new_access_token}', httponly=True, samesite="lax", secure=False)
+    auth_username = auth_service.get_auth_username_from_session(token, session)
     
-    return user
+    if not auth_username:
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized"
+        )
+    
+    user_repository = UserRepository(db)
+    
+    auth_user = user_repository.find_by_username(auth_username)
+    
+    if not auth_user:
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized"
+        )
+    
+    return auth_user

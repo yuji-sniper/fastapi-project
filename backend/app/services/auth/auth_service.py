@@ -1,28 +1,23 @@
-from datetime import datetime, timedelta
-
 from decouple import config
-from fastapi import HTTPException, Request, status
-from fastapi.security import OAuth2PasswordBearer
-from fastapi_csrf_protect import CsrfProtect
-from jose import jwt
+import hashlib
 from passlib.context import CryptContext
+from redis import Redis
 from sqlalchemy.orm import Session
 
 from app.models.user import User
 from app.repositories.user.user_repository import UserRepository
-from app.schemas.token import AccessTokenData
 from app.schemas.user import UserInput
 from app.services.auth.auth_service_interface import AuthServiceInterface
-
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+from app.utils.string_util import random_string
+from app.utils.crypt_util import encrypt, decrypt
 
 
 class AuthService(AuthServiceInterface):
     
     SECRET_KEY = config("SECRET_KEY")
+    AUTH_USERNAME_SESSION_KEY_PREFIX = "auth_user_name:"
     ALGORITHM = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES = 10
+    TOKEN_EXPIRE_MINUTES = 5
     
     
     pwd_context: CryptContext
@@ -32,21 +27,21 @@ class AuthService(AuthServiceInterface):
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     
     
-    def verify_password(self, plain_password: str, hashed_password: str):
+    def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         '''
         Verify a password.
         '''
         return self.pwd_context.verify(plain_password, hashed_password)
     
     
-    def get_password_hash(self, password):
+    def get_password_hash(self, password: str) -> str:
         '''
         Get a password hash.
         '''
         return self.pwd_context.hash(password)
     
     
-    def register_user(self, user_input: UserInput, db: Session):
+    def register_user(self, user_input: UserInput, db: Session) -> User:
         '''
         Register a user.
         '''
@@ -64,7 +59,10 @@ class AuthService(AuthServiceInterface):
         return user_repository.create(user_input)
     
     
-    def authenticate_user(self, db: Session, user_input: UserInput):
+    def authenticate_user(
+        self,
+        db: Session,
+        user_input: UserInput) -> User:
         '''
         Authenticate a user.
         '''
@@ -81,74 +79,73 @@ class AuthService(AuthServiceInterface):
         return user
     
     
-    def create_access_token(self, user: User) -> str:
+    def get_auth_username_from_session(
+        self,
+        api_token: str,
+        session: Redis) -> str:
         '''
-        Create an access token.
+        Get an auth user id.
         '''
-        claims = {"sub": user.username}
+        key = self.get_key_for_auth_username(api_token)
         
-        expire = datetime.utcnow() + timedelta(minutes=self.ACCESS_TOKEN_EXPIRE_MINUTES)
+        encrypt_auth_username = session.get(key)
         
-        claims.update({"exp": expire})
+        if not encrypt_auth_username:
+            return None
         
-        return jwt.encode(claims, self.SECRET_KEY, algorithm=self.ALGORITHM)
+        auth_username = decrypt(encrypt_auth_username)
+        
+        return auth_username
     
     
-    def decode_access_token(self, request: Request):
+    def generate_api_token(self, session: Redis) -> str:
         '''
-        Decode an access token.
-        '''
-        value = request.cookies.get("access_token")
+        Create an api token.
+        '''        
+        while True:
+            api_token = random_string(40)
+            
+            key = self.get_key_for_auth_username(api_token)
+            
+            if not session.exists(key):
+                break
         
-        if not value:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Access token is missing",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
-        
-        _, _, token = value.partition(" ")
-        
-        try:
-            return jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
-        except jwt.ExpiredSignatureError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Access token has expired",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
-        except jwt.InvalidTokenError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid access token",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+        return api_token
     
     
-    def get_auth_user(self, db: Session, request: Request) -> User:
+    def store_auth_username_in_session(
+        self,
+        auth_username: int,
+        api_token: str,
+        session: Redis):
         '''
-        Verify an access token.
+        Store an auth user id.
         '''
-        credentials_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-
-        payload = self.decode_access_token(request)
+        key = self.get_key_for_auth_username(api_token)
         
-        username: str = payload.get("sub")
+        value = encrypt(str(auth_username))
+                
+        session.set(name=key, value=value, ex=self.TOKEN_EXPIRE_MINUTES * 60)
+    
+    
+    def delete_auth_username_from_session(
+        self,
+        api_token: str,
+        session: Redis):
+        '''
+        Delete an auth user id.
+        '''
+        api_token_hash = api_token
         
-        if username is None:
-            raise credentials_exception
+        key = self.get_key_for_auth_username(api_token_hash)
         
-        token_data = AccessTokenData(username=username)
-         
-        user_repository = UserRepository(db)
+        session.delete(key)
+    
+    
+    def get_key_for_auth_username(self, api_token: str) -> str:
+        '''
+        Get a key for an auth user id.
+        '''
+        api_token_hash = hashlib.sha256(api_token.encode()).hexdigest()
         
-        user = user_repository.find_by_username(token_data.username)
-        
-        if user is None:
-            raise credentials_exception
-        
-        return user
+        return f"{self.AUTH_USERNAME_SESSION_KEY_PREFIX}{api_token_hash}"

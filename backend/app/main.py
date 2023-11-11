@@ -1,6 +1,8 @@
+from decouple import config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_csrf_protect import CsrfProtect
+from starlette.middleware.sessions import SessionMiddleware
 
 from app.api.v1.router import api_router as v1_router
 from app.api.v2.router import api_router as v2_router
@@ -24,6 +26,7 @@ app.add_middleware(CORSMiddleware,
                    allow_methods=["POST", "GET", "PUT", "PATCH", "DELETE"],
                    allow_headers=["*"])
 app.add_middleware(VerifyCsrfMiddleware)
+app.add_middleware(SessionMiddleware, secret_key=config("SECRET_KEY"))
 
 
 @CsrfProtect.load_config

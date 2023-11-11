@@ -109,6 +109,24 @@ yarl = ">=1.0,<2.0"
 speedups = ["Brotli", "aiodns", "cchardet"]
 
 [[package]]
+name = "aioredis"
+version = "2.0.1"
+description = "asyncio (PEP 3156) Redis support"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "aioredis-2.0.1-py3-none-any.whl", hash = "sha256:9ac0d0b3b485d293b8ca1987e6de8658d7dafcca1cddfcd1d506cae8cdebfdd6"},
+    {file = "aioredis-2.0.1.tar.gz", hash = "sha256:eaa51aaf993f2d71f54b70527c440437ba65340588afeb786cd87c55c89cd98e"},
+]
+
+[package.dependencies]
+async-timeout = "*"
+typing-extensions = "*"
+
+[package.extras]
+hiredis = ["hiredis (>=1.0)"]
+
+[[package]]
 name = "aiosignal"
 version = "1.3.1"
 description = "aiosignal: a list of registered asynchronous callbacks"
@@ -548,6 +566,25 @@ files = [
 fastapi = ">=0,<1"
 itsdangerous = ">=2.0.1,<3.0.0"
 pydantic = ">=1.7.2,<3.0.0"
+
+[[package]]
+name = "fastapi-sessions"
+version = "0.3.2"
+description = "Ready-to-use session library for FastAPI"
+optional = false
+python-versions = ">=3.6.1,<4.0"
+files = [
+    {file = "fastapi-sessions-0.3.2.tar.gz", hash = "sha256:5159023fd548f8a9c198a966cf1086a73a43038cf3b9b79175fe33129f15e64c"},
+    {file = "fastapi_sessions-0.3.2-py3-none-any.whl", hash = "sha256:b7f5642224b8f03661428e9fb45c9d96c4e61a9cdf963c9ba36ce8428629b0bc"},
+]
+
+[package.dependencies]
+fastapi = ">=0,<1"
+itsdangerous = ">=2.0.1,<3.0.0"
+
+[package.extras]
+dev = ["black (>=20.8b1,<21.0)", "flake8 (>=3.9.0,<4.0.0)", "flake8-docstrings (>=1.6.0,<2.0.0)", "isort (>=5.9.3,<6.0.0)", "pytest (>=6.2.3,<7.0.0)", "uvicorn (>=0.14.0,<0.15.0)"]
+docs = ["markdown-include (>=0.6.0,<0.7.0)", "mkdocs-material (>=7.1.0,<8.0.0)"]
 
 [[package]]
 name = "frozenlist"
@@ -1434,6 +1471,24 @@ files = [
 ]
 
 [[package]]
+name = "redis"
+version = "5.0.1"
+description = "Python client for Redis database and key-value store"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "redis-5.0.1-py3-none-any.whl", hash = "sha256:ed4802971884ae19d640775ba3b03aa2e7bd5e8fb8dfaed2decce4d0fc48391f"},
+    {file = "redis-5.0.1.tar.gz", hash = "sha256:0dab495cd5753069d3bc650a0dde8a8f9edde16fc5691b689a566eda58100d0f"},
+]
+
+[package.dependencies]
+async-timeout = {version = ">=4.0.2", markers = "python_full_version <= \"3.11.2\""}
+
+[package.extras]
+hiredis = ["hiredis (>=1.0.0)"]
+ocsp = ["cryptography (>=36.0.1)", "pyopenssl (==20.0.1)", "requests (>=2.26.0)"]
+
+[[package]]
 name = "requests"
 version = "2.31.0"
 description = "Python HTTP for Humans."
@@ -1774,4 +1829,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "3c59af446a5c347ecd2bceb327783d452064fe0ecacec5ad5783671ff8634935"
+content-hash = "259e289287d62a93f5e3ef84578d72b585056daf6dea0ef1f29c0308666ac566"
