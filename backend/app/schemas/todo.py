@@ -6,7 +6,7 @@ class TodoInput(BaseModel):
     description: constr(max_length=255)
     
     class Config:
-        orm_mode = True
+        from_attribute = True
 
 
 class TodoOutput(BaseModel):
@@ -15,7 +15,7 @@ class TodoOutput(BaseModel):
     description: str
     
     class Config:
-        orm_mode = True
+        from_attribute = True
 
 
 class TodoCreate(BaseModel):
@@ -24,7 +24,7 @@ class TodoCreate(BaseModel):
     description: str
     
     class Config:
-        orm_mode = True
+        from_attribute = True
 
 
 class TodoUpdate(BaseModel):
@@ -34,4 +34,4 @@ class TodoUpdate(BaseModel):
     description: str
     
     class Config:
-        orm_mode = True
+        from_attribute = True

@@ -14,7 +14,7 @@ class UserInput(BaseModel):
         return v
     
     class Config:
-        orm_mode = True
+        from_attribute = True
 
 
 class UserOutput(BaseModel):
@@ -22,4 +22,4 @@ class UserOutput(BaseModel):
     username: constr(max_length=64)
     
     class Config:
-        orm_mode = True
+        from_attribute = True
