@@ -15,7 +15,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.get("/", response_model=List[TodoOutput])
+@router.get("", response_model=List[TodoOutput])
 def get(auth_user = Depends(get_auth_user),
         db: Session = Depends(get_db)):
     '''
@@ -27,7 +27,7 @@ def get(auth_user = Depends(get_auth_user),
     return todos
 
 
-@router.post("/", response_model=TodoOutput)
+@router.post("", response_model=TodoOutput)
 def create(todo_input: TodoInput,
            auth_user = Depends(get_auth_user),
            db: Session = Depends(get_db)):
