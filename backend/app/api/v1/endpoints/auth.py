@@ -13,7 +13,6 @@ from app.schemas.common import Ok
 from app.schemas.csrf import Csrf
 from app.schemas.token import TokenOutput
 from app.schemas.user import UserInput, UserOutput
-from app.services.auth.auth_service import AuthService
 from app.services.auth.auth_service_interface import AuthServiceInterface
 from app.utils.auth_util import get_request_token
 
@@ -24,7 +23,10 @@ logger = logging.getLogger(__name__)
 
 
 @router.get("/csrf", response_model=Csrf)
-def get_csrf_token(response: Response, csrf_protect: CsrfProtect = Depends()):
+@inject
+def get_csrf_token(
+    response: Response,
+    csrf_protect: CsrfProtect = Depends()):
     '''
     Get a CSRF token.
     '''
@@ -52,7 +54,7 @@ def register(user_input: UserInput,
         
         logger.error(f"Error registering user: {e}", exc_info=True)
         
-        raise HTTPException(status_code=500, detail=f"Internal Server Error")
+        raise e
 
 
 @router.post("/login", response_model=TokenOutput)

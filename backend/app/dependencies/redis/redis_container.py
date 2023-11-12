@@ -1,7 +1,7 @@
 from decouple import config
 from dependency_injector import containers, providers
 
-from app.session.redis import init_redis_pool
+from app.redis.redis import init_redis_pool
 
 
 class RedisContainer(containers.DeclarativeContainer):

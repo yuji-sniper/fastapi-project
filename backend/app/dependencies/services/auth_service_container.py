@@ -1,7 +1,7 @@
 from dependency_injector import containers, providers
 
 from app.dependencies.repositories.user_repository_container import UserRepositoryContainer
-from app.dependencies.session.redis_container import RedisContainer
+from app.dependencies.redis.redis_container import RedisContainer
 from app.services.auth.auth_service import AuthService
 
 

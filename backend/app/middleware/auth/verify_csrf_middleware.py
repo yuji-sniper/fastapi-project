@@ -22,12 +22,12 @@ class VerifyCsrfMiddleware(BaseHTTPMiddleware):
         except CsrfProtectError as e:
             return JSONResponse(
                 status_code=e.status_code,
-                content={"detail": e.message}
+                content={"message": e.message}
             )
         except Exception as e:
             return JSONResponse(
                 status_code=500,
-                content={"detail": "Internal Server Error"}
+                content={"message": "Internal Server Error"}
             )
         
         response = await call_next(request)
