@@ -1,7 +1,7 @@
 from fastapi import Request
 
 
-def get_request_token(request: Request) -> str:
+def get_request_token(request: Request) -> str | None:
     """
     Extract the API token from the Authorization header.
     """
@@ -10,4 +10,4 @@ def get_request_token(request: Request) -> str:
     if authorization_header and " " in authorization_header:
         return authorization_header.split(" ")[1]
     
-    return ""
+    return None

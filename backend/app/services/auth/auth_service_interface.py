@@ -1,8 +1,5 @@
 from abc import ABC, abstractmethod
 
-from redis import Redis
-from sqlalchemy.orm import Session
-
 from app.models.user import User
 from app.schemas.user import UserInput
 
@@ -26,7 +23,7 @@ class AuthServiceInterface(ABC):
     
     
     @abstractmethod
-    def register_user(self, user_input: UserInput, db: Session) -> User:
+    def register_user(self, user_input: UserInput) -> User:
         '''
         Register a user.
         '''
@@ -34,7 +31,7 @@ class AuthServiceInterface(ABC):
     
     
     @abstractmethod
-    def authenticate_user(self, user_input: UserInput, db: Session) -> User:
+    def authenticate_user(self, user_input: UserInput) -> User:
         '''
         Authenticate a user.
         '''
@@ -42,10 +39,9 @@ class AuthServiceInterface(ABC):
     
     
     @abstractmethod
-    def get_auth_username_from_session(
+    def get_auth_username_from_redis(
         self,
-        api_token: str,
-        session) -> str:
+        api_token: str) -> str:
         '''
         Get an auth user id.
         '''
@@ -53,7 +49,7 @@ class AuthServiceInterface(ABC):
     
     
     @abstractmethod
-    def generate_api_token(self, session: Redis) -> str:
+    def generate_api_token(self) -> str:
         '''
         Generate an API token.
         '''
@@ -61,24 +57,22 @@ class AuthServiceInterface(ABC):
     
     
     @abstractmethod
-    def store_auth_username_in_session(
+    def store_auth_username_in_redis(
         self,
         username: str,
-        api_token: str,
-        session: Redis):
+        api_token: str):
         '''
-        Store an auth user id in the session.
+        Store an auth user id in the redis.
         '''
         pass
     
     
     @abstractmethod
-    def delete_auth_username_from_session(
+    def delete_auth_username_from_redis(
         self,
-        api_token: str,
-        session: Redis):
+        api_token: str):
         '''
-        Delete an auth user id from the session.
+        Delete an auth user id from the redis.
         '''
         pass
     

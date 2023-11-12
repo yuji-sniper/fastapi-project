@@ -5,10 +5,7 @@ from app.repositories.user.user_repository_interface import UserRepositoryInterf
 from app.schemas.user import UserInput
 
 
-class UserRepository(UserRepositoryInterface):
-    
-    db: Session
-    
+class UserRepository(UserRepositoryInterface):    
     
     def __init__(self, db: Session):
         self.db = db

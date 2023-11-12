@@ -1,42 +1,17 @@
-from fastapi import Request, Depends, HTTPException
-from sqlalchemy.orm import Session
-from redis import Redis
+from dependency_injector.wiring import inject, Provide
+from fastapi import Request, Depends
 
-from app.config.redis_config import get_redis
-from app.db.session import get_db
+from app.dependencies.services.auth_service_container import AuthServiceContainer
 from app.models.user import User
-from app.repositories.user.user_repository import UserRepository
-from app.services.auth.auth_service import AuthService
-from app.utils.auth_util import get_request_token
+from app.services.auth.auth_service_interface import AuthServiceInterface
 
 
-def get_auth_user(
+@inject
+async def get_auth_user(
     request: Request,
-    db: Session = Depends(get_db),
-    session: Redis = Depends(get_redis)) -> User:
+    auth_service: AuthServiceInterface = Depends(Provide[AuthServiceContainer.auth_service])
+) -> User:
     '''
-    Get the current user.
+    Get an auth user.
     '''
-    token = get_request_token(request)
-    
-    auth_service = AuthService()
-    
-    auth_username = auth_service.get_auth_username_from_session(token, session)
-    
-    if not auth_username:
-        raise HTTPException(
-            status_code=401,
-            detail="Unauthorized"
-        )
-    
-    user_repository = UserRepository(db)
-    
-    auth_user = user_repository.find_by_username(auth_username)
-    
-    if not auth_user:
-        raise HTTPException(
-            status_code=401,
-            detail="Unauthorized"
-        )
-    
-    return auth_user
+    return await auth_service.get_auth_user(request)
