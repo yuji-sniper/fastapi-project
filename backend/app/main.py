@@ -4,10 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi_csrf_protect import CsrfProtect
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.api.v1 import endpoints
 from app.api.v1.router import api_router as v1_router
 from app.api.v2.router import api_router as v2_router
 from app.dependencies.db.db_container import DbContainer
+from app.dependencies.repositories.todo_repository_container import TodoRepositoryContainer
 from app.dependencies.repositories.user_repository_container import UserRepositoryContainer
 from app.dependencies.services.auth_service_container import AuthServiceContainer
 from app.dependencies.session.redis_container import RedisContainer
@@ -22,12 +22,17 @@ app = FastAPI()
 db_container = DbContainer()
 redis_container = RedisContainer()
 auth_service_container = AuthServiceContainer()
+todo_repository_container = TodoRepositoryContainer()
 user_repository_container = UserRepositoryContainer()
 
-wire_modules = ["app.api.v1.endpoints.auth"]
+wire_modules = [
+    "app.api.v1.endpoints.auth",
+    "app.api.v1.endpoints.todo",
+]
 db_container.wire(modules=wire_modules)
 redis_container.wire(modules=wire_modules)
 auth_service_container.wire(modules=wire_modules)
+todo_repository_container.wire(modules=wire_modules)
 user_repository_container.wire(modules=wire_modules)
 
 

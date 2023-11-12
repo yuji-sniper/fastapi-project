@@ -1,13 +1,12 @@
 import logging
-import sys
 
 from dependency_injector.wiring import inject, Provide
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi_csrf_protect import CsrfProtect
 from sqlalchemy.orm import Session
 
-from app.db.session import get_db
 from app.dependencies.auth.auth_dependencies import get_auth_user
+from app.dependencies.db.db_container import DbContainer
 from app.dependencies.services.auth_service_container import AuthServiceContainer
 from app.models.user import User
 from app.schemas.common import Ok
@@ -39,7 +38,7 @@ def get_csrf_token(response: Response, csrf_protect: CsrfProtect = Depends()):
 @router.post("/register")
 @inject
 def register(user_input: UserInput,
-             db: Session = Depends(get_db),
+             db: Session = Depends(Provide[DbContainer.db]),
              auth_service: AuthServiceInterface = Depends(Provide[AuthServiceContainer.auth_service])):
     '''
     Register a user.
