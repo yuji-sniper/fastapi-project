@@ -30,23 +30,14 @@ class AuthService(AuthServiceInterface):
     
     
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
-        '''
-        Verify a password.
-        '''
         return self.pwd_context.verify(plain_password, hashed_password)
     
     
     def get_password_hash(self, password: str) -> str:
-        '''
-        Get a password hash.
-        '''
         return self.pwd_context.hash(password)
     
     
     def register_user(self, user_input: UserInput) -> User:
-        '''
-        Register a user.
-        '''        
         overlap_user = self.user_repository.find_by_username(user_input.username)
         
         if overlap_user:
@@ -63,9 +54,6 @@ class AuthService(AuthServiceInterface):
     
     
     def authenticate_user(self, user_input: UserInput) -> User:
-        '''
-        Authenticate a user.
-        '''        
         user = self.user_repository.find_by_username(user_input.username)
         
         if not user:
@@ -80,9 +68,6 @@ class AuthService(AuthServiceInterface):
     async def get_auth_username_from_redis(
         self,
         api_token: str) -> str:
-        '''
-        Get an auth user id.
-        '''
         key = self.get_key_for_auth_username(api_token)
         
         encrypt_auth_username = await self.redis.get(key)
@@ -96,9 +81,6 @@ class AuthService(AuthServiceInterface):
     
     
     async def generate_api_token(self) -> str:
-        '''
-        Create an api token.
-        '''        
         while True:
             api_token = random_string(40)
             
@@ -116,9 +98,6 @@ class AuthService(AuthServiceInterface):
         self,
         auth_username: int,
         api_token: str):
-        '''
-        Store an auth user id.
-        '''
         key = self.get_key_for_auth_username(api_token)
         
         value = encrypt(str(auth_username))
@@ -129,9 +108,6 @@ class AuthService(AuthServiceInterface):
     async def delete_auth_username_from_redis(
         self,
         api_token: str):
-        '''
-        Delete an auth user id.
-        '''
         api_token_hash = api_token
         
         key = self.get_key_for_auth_username(api_token_hash)
@@ -140,18 +116,12 @@ class AuthService(AuthServiceInterface):
     
     
     def get_key_for_auth_username(self, api_token: str) -> str:
-        '''
-        Get a key for an auth user id.
-        '''
         api_token_hash = hashlib.sha256(api_token.encode()).hexdigest()
         
         return f"{self.AUTH_USERNAME_REDIS_KEY_PREFIX}{api_token_hash}"
     
     
     async def get_auth_user(self, request: Request) -> User:
-        '''
-        Get an auth user.
-        '''
         unauthorized_exception = HTTPException(
             status_code=401,
             detail="Unauthorized"

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from fastapi import Request
 
 from app.models.user import User
 from app.schemas.user import UserInput
@@ -81,5 +82,13 @@ class AuthServiceInterface(ABC):
     def get_key_for_auth_username(self, api_token: str) -> str:
         '''
         Get a key for an auth user id.
+        '''
+        pass
+    
+    
+    @abstractmethod
+    def get_auth_user(self, request: Request) -> User:
+        '''
+        Get an auth user.
         '''
         pass
